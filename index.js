@@ -3,21 +3,22 @@ const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
 
-const requestLogger = (request, response, next) => {
-    console.log('Method:', request.method)
-    console.log('Path:  ', request.path)
-    console.log('Body:  ', request.body)
-    console.log('---')
-    next()
-}
+require('./db/connect')
+
+// const requestLogger = (request, response, next) => {
+//     console.log('Method:', request.method)
+//     console.log('Path:  ', request.path)
+//     console.log('Body:  ', request.body)
+//     console.log('---')
+//     next()
+// }
 
 app.use(express.json())
-app.use(requestLogger)
-morgan.token('body', (request, response) => {
-    return request.method === 'POST' ? JSON.stringify(request.body) : ''
-})
+// morgan.token('body', (request, response) => {
+//     return request.method === 'POST' ? JSON.stringify(request.body) : ''
+// })
 
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+app.use(morgan('tiny'))
 app.use(cors())
 app.use(express.static('dist'))
 
