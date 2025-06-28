@@ -3,7 +3,7 @@ const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
 const Person = require('./db/schema')
-
+const castError = require('./middlewares/casterror')
 require('./db/connect')
 
 // const requestLogger = (request, response, next) => {
@@ -51,16 +51,24 @@ app.get('/api/persons', async (request, response) => {
     response.json(persons)
 })
 
-app.get('/api/persons/:id', async (request, response) => {
+app.get('/api/persons/:id', async (request, response, next) => {
     const id = request.params.id
-    const person = await Person.findById(id)
-    response.json(person)
+    try {
+        const person = await Person.findById(id)
+        response.json(person)
+    } catch (error) {
+        next(error)
+    }
 })
 
-app.delete('/api/persons/:id', async (request, response) => {
+app.delete('/api/persons/:id', async (request, response, next) => {
     const id = request.params.id
-    await Person.findByIdAndDelete(id)
-    response.status(204).end()
+    try {
+        await Person.findByIdAndDelete(id)
+        response.status(204).end()
+    } catch (error) {
+        next(error)
+    }
 })
 
 app.post('/api/persons', async (request, response) => {
@@ -83,7 +91,8 @@ app.post('/api/persons', async (request, response) => {
 })
 
 app.get("/info", async (request, response) => {
-    const template = `Phonebook has info for ${Person.countDocuments()} people <br> ${new Date()}`
+    const count = await Person.countDocuments()
+    const template = `Phonebook has info for ${count} people <br> ${new Date()}`
     response.send(template)
 })
 
@@ -92,6 +101,8 @@ const unknownEndpoint = (request, response) => {
 }
 
 app.use(unknownEndpoint)
+
+app.use(castError)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
