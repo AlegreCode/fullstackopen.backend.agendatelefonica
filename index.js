@@ -82,23 +82,18 @@ app.delete('/api/persons/:id', async (request, response, next) => {
     }
 })
 
-app.post('/api/persons', async (request, response) => {
+app.post('/api/persons', async (request, response, next) => {
     const body = request.body
-    if (!body.name || !body.number) {
-      return response.status(400).json({ error: 'name or number is missing' })
+    try {
+        const person = new Person({
+          name: body.name,
+          number: body.number,
+        })
+        const savedPerson = await person.save()
+        response.json(savedPerson)
+    } catch (error) {
+        next(error)
     }
-
-    const existingPerson = await Person.findOne({ name: body.name })
-    if (existingPerson) {
-        return response.status(400).json({ error: 'name must be unique' })
-    }
-
-    const person = new Person({
-      name: body.name,
-      number: body.number,
-    })
-    const savedPerson = await person.save()
-    response.json(savedPerson)
 })
 
 app.get("/info", async (request, response) => {
