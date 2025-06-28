@@ -61,6 +61,17 @@ app.get('/api/persons/:id', async (request, response, next) => {
     }
 })
 
+app.put('/api/persons/:id', async (request, response, next) => {
+    const id = request.params.id
+    const body = request.body
+    try {
+        const person = await Person.findByIdAndUpdate(id, body, { new: true })
+        response.json(person)
+    } catch (error) {
+        next(error)
+    }
+})
+
 app.delete('/api/persons/:id', async (request, response, next) => {
     const id = request.params.id
     try {
