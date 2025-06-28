@@ -65,7 +65,7 @@ app.put('/api/persons/:id', async (request, response, next) => {
     const id = request.params.id
     const body = request.body
     try {
-        const person = await Person.findByIdAndUpdate(id, body, { new: true })
+        const person = await Person.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' })
         response.json(person)
     } catch (error) {
         next(error)
